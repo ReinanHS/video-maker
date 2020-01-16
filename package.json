@@ -1,0 +1,21 @@
+{
+  "name": "video-maker",
+  "version": "0.0.1",
+  "description": "Projeto open source para fazer vídeos automatizados",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReinanHS/video-maker"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ReinanHS/video-maker/issues"
+  },
+  "homepage": "https://github.com/ReinanHS/video-maker#readme",
+  "dependencies": {}
+}
