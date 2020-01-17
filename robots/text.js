@@ -6,6 +6,7 @@ const watsonApiKey = require('../credentials/watson.json').apikey
 const fs = require('fs');
 const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
 const { IamAuthenticator } = require('ibm-watson/auth');
+const state = require('./state')
 
 const nlu = new NaturalLanguageUnderstandingV1({
   authenticator: new IamAuthenticator({ apikey: watsonApiKey }),
@@ -13,12 +14,14 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway.watsonplatform.net/natural-language-understanding/api/'
 })
 
-async function robot(content) {
+async function robot() {
+  const content = state.load()
   await fetchContentFromWikepedia(content)
   sanitizeContent(content)
   breackContentIntoSentences(content)
   limitMaximunSentences(content)
   await fetchKeywordsOfAllSentences(content)
+  state.save(content)
 
   async function fetchContentFromWikepedia(content) {
     const input = {
