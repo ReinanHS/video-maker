@@ -3,7 +3,9 @@ const robots = {
   text: require('./robots/text')
 }
 async function start(){
-  const content = {}
+  const content = {
+    maximunSenteces: 7,
+  }
 
   content.searchTerm = askAndReturnSearchTerm()
   content.prefix = askAndReturnPrefix()
