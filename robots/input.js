@@ -15,8 +15,9 @@ function robot(){
 
   function askAndReturnPrefix(){
     const prefixs = ['Who is', 'What is', 'The history of']
+    const prefixsTranslation = ['Quem é', 'O que é', 'A história de']
     const selectPrefixIndex = readline.keyInSelect(prefixs, 'Type a prefix: ')
-    return prefixs[selectPrefixIndex]
+    return prefixsTranslation[selectPrefixIndex]
   }
 }
 

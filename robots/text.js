@@ -3,6 +3,7 @@ const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey
 const sentenceBoundaryDetection = require('sbd')
 const watsonApiKey = require('../credentials/watson.json').apikey
 
+
 const fs = require('fs');
 const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
 const { IamAuthenticator } = require('ibm-watson/auth');
@@ -25,7 +26,7 @@ async function robot() {
 
   async function fetchContentFromWikepedia(content) {
     const input = {
-      "articleName": content.searchTerm,
+      "articleName": `${content.prefix} ${content.searchTerm}`,
       "lang": "pt"
     }
     const algorithmiaAuthenticated = algorithmia(algorithmiaApiKey)
