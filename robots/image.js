@@ -11,6 +11,7 @@ async function robot(){
   state.save(content)
 
   async function fetchImageOffAllSentences(content){
+    console.log(`> [robot] Buscando imagens relacionadas as sentenças`)
     for(const sentence of content.sentences){
       const query = `${content.searchTerm} ${sentence.keywords[0]}`
       sentence.images = await fetchGoogleAndReturnImagesLinks(query)
@@ -20,6 +21,7 @@ async function robot(){
   }
 
   async function fetchGoogleAndReturnImagesLinks(query){
+    console.log(`> [robot] Buscando imagens no google sobre ${query}`)
     const response = await customSearch.cse.list({
       auth: googleSearchCredentials.apiKey,
       cx: googleSearchCredentials.searchEngine,
@@ -37,7 +39,7 @@ async function robot(){
   }
 
   async function dowloadAllImages(content){
-
+    console.log(`> [robot] Baixando as imagens`)
     content.dowloadedImages = []
 
     for(let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++){

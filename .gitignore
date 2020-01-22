@@ -112,3 +112,6 @@ content/*.png
 content/*.jpg
 content/*.js
 content/*.mov
+content/*.mp4
+content/*.mp3
+content/*.wav
