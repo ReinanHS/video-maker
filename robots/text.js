@@ -25,6 +25,9 @@ async function robot() {
   state.save(content)
 
   async function fetchContentFromWikepedia(content) {
+
+    console.log(`> [robot] Buscando informações no Wikipedia`)
+
     const input = {
       "articleName": `${content.prefix} ${content.searchTerm}`,
       "lang": "pt"
@@ -35,9 +38,15 @@ async function robot() {
     const wikipediaContent = wikipediaResponde.get()
 
     content.sourceContentOriginal = wikipediaContent.content
+
+    console.log(`> [robot] Informações coletadas com sucesso`)
+
   }
 
   function sanitizeContent(content) {
+
+    console.log(`> [robot] Separando as sentenças nas informações encontradas.`)
+
     const withoutBlankLinesAndMarkdown = removeBlankLinesAndMarkdown(content.sourceContentOriginal)
     const withoutDatesInParentheses = removeDatesInParentheses(withoutBlankLinesAndMarkdown)
 
@@ -80,12 +89,14 @@ async function robot() {
   }
 
   async function fetchKeywordsOfAllSentences(content){
+    console.log(`> [robot] Procurando às palavras chaves.`)
     for(const sentence of content.sentences){
       sentence.keywords = await fetchWatsonAndReturnKeywords(sentence.text)
     }
   }
 
   async function fetchWatsonAndReturnKeywords(sentence){
+    console.log(`> [robot] Buscando palavras chaves sobre ${sentence}`)
     return new Promise((resolve, reject) => {
       nlu.analyze({
         text: sentence,
@@ -98,6 +109,7 @@ async function robot() {
           return
         }
 
+        console.log(`> [robot] Palavras chaves encontradas: ${response.result.keywords}`)
         const keywords = response.result.keywords.map((keyword) => {
           return keyword.text
         })
