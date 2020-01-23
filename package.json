@@ -18,8 +18,12 @@
   },
   "homepage": "https://github.com/ReinanHS/video-maker#readme",
   "dependencies": {
+    "@std/esm": "^0.26.0",
     "algorithmia": "^0.3.10",
+    "app-root-path": "^3.0.0",
+    "dotenv": "^8.2.0",
     "download-file": "^0.1.5",
+    "express": "^4.17.1",
     "get-audio-duration": "^1.0.0",
     "gm": "^1.23.1",
     "googleapis": "^47.0.0",
