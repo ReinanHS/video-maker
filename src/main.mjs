@@ -1,7 +1,11 @@
 import { Bootstrap } from '../src/Bootstrap'
+import Input from '../src/robots/Input'
+import Text from '../src/robots/Text'
 
-const robots = {
-  config: new Bootstrap(),
-}
+const robots = [
+  Input,
+  Text,
+]
 
-robots.config
+const init = new Bootstrap()
+init.start(robots.reverse())

@@ -4,9 +4,21 @@ import NodeCmd from 'node-cmd'
 import ENV from 'dotenv'
 export class Bootstrap {
 
-  constructor() {
+  start(Load) {
     this.writeLog('O programa foi iniciado')
-    this.checkingEnvironment()
+    this.checkingEnvironment().finally(() => {
+      function newOBJ(key) {
+        key = key -1
+        const item = new Load[key]()
+        item.finally(() => {
+          if(key > 0){
+            newOBJ(key)
+          }
+        })
+      }
+
+      newOBJ(Load.length)
+    })
   }
 
   saveContent(content){
@@ -16,7 +28,7 @@ export class Bootstrap {
   
   loadContent(){
     const contentString = this.loadFile('/content/content.json')
-    return JSON.parse(contentString)
+    return contentString != null ? JSON.parse(contentString) : {}
   }
 
   saveFile(filename, content){
@@ -44,6 +56,13 @@ export class Bootstrap {
     const logContent = getLog != null ? (getLog + `\n[${dataDoLog}] - ${log}`) : `[${dataDoLog}] - ${log}`
 
     this.saveFile('log.txt', logContent)
+  }
+
+  showLog(log){
+    this.writeLog(log)
+    if(this.getConfig().APP_DEBUG === 'true'){
+      console.log(log)
+    }
   }
 
   getConfig() {
