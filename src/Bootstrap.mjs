@@ -5,6 +5,7 @@ import ENV from 'dotenv'
 export class Bootstrap {
 
   start(Load) {
+    console.log('Verificando o ambiente')
     this.writeLog('O programa foi iniciado')
     this.checkingEnvironment().finally(() => {
       function newOBJ(key) {
