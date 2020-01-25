@@ -19,7 +19,7 @@ export default class Image extends Bootstrap{
     this.showLog(`[robot] Buscando imagens relacionadas as sentenças`)
     let index = 0
     for(const sentence of content.sentences){
-      const query = `${index > 0 ? content.sentences[0].keywords[0] : ''} ${sentence.keywords[0]} ${sentence.keywords[1]}`
+      const query = `${index > 0 ? `${content.prefix} ${content.searchTerm} ${sentence.text}` : `${content.prefix} ${content.searchTerm}` }`
       sentence.images = await this.fetchGoogleAndReturnImagesLinks(query)
 
       sentence.googleSearchQuery = query
@@ -40,7 +40,6 @@ export default class Image extends Bootstrap{
       q: query,
       num: 4,
       searchType: 'image',
-      imgSize: 'huge'
     })
 
     const imagesUrl = response.data.items.map((item) => {
