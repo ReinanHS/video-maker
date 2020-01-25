@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+log.txt
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -107,7 +108,7 @@ dist
 credentials/*.json
 
 # Local files cache
-content.json
+content/*.json
 content/*.png
 content/*.jpg
 content/*.js
