@@ -6,10 +6,10 @@ import Music from '../src/robots/Music'
 import Video from '../src/robots/Video'
 
 const robots = [
-  Input,
-  Text,
-  Image,
-  Music,
+  // Input,
+  // Text,
+  // Image,
+  // Music,
   Video,
 ]
 
