@@ -79,7 +79,7 @@ export default class Image extends Bootstrap{
   async dowloadedAndSave(url, fileName){
     return ImageDownload.image({
       url,
-      dest: `./content/${fileName}`,
+      dest: `./content/temp/${fileName}`,
     }).then(({ filename }) => {
       this.showLog('A imagem foi salva: ', filename)
     })

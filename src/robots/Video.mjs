@@ -30,6 +30,8 @@ export default class Music extends Bootstrap {
       this.showLog(`Error: ${e}`)
       process.exit(0)
     })
+
+    await this.playVideo()
   }
 
   async convertAllImages(content) {
@@ -40,8 +42,8 @@ export default class Music extends Bootstrap {
 
   async convertImage(sentenceIndex) {
     return new Promise((resolve, reject) => {
-      const inputFile = `./content/${sentenceIndex}-original.png[0]`
-      const outputFile = `./content/${sentenceIndex}-converted.png`
+      const inputFile = `./content/temp/${sentenceIndex}-original.png[0]`
+      const outputFile = `./content/temp/${sentenceIndex}-converted.png`
       const width = 1920
       const height = 1080
 
@@ -85,7 +87,7 @@ export default class Music extends Bootstrap {
 
   async createSentenceImage(sentenceIndex, sentenceText) {
     return new Promise((resolve, reject) => {
-      const outputFile = `./content/${sentenceIndex}-sentence.png`
+      const outputFile = `./content/temp/${sentenceIndex}-sentence.png`
 
       const templateSettings = {
         0: {
@@ -124,8 +126,8 @@ export default class Music extends Bootstrap {
   async createYouTubeThumbnail(content) {
     return new Promise((resolve, reject) => {
       ImageMagick()
-        .in('./content/0-converted.png')
-        .write('./content/youtube-thumbnail.jpg', (error) => {
+        .in('./content/temp/0-converted.png')
+        .write('./content/temp/youtube-thumbnail.jpg', (error) => {
           if (error) {
             return reject(error)
           }
@@ -150,14 +152,14 @@ export default class Music extends Bootstrap {
       for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
         const sentence = content.sentences[sentenceIndex]
         // Importando o arquivo e definido um tempo de duração no vídeo
-        importFiles += `-t ${!sentence.music ? 10 : sentence.music.time} -i ${this.getPath()}/content/${sentenceIndex}-converted.png `
+        importFiles += `-t ${!sentence.music ? 10 : sentence.music.time} -i ${this.getPath()}/content/temp/${sentenceIndex}-converted.png `
         // Definidos os efeitos
         filters += `[${sentenceIndex}:v]zoompan=z='if(lte(zoom,1.0),1.5,max(1.001,zoom-0.0015))':d=${25 * (!sentence.music ? 10 : sentence.music.time)},${sentenceIndex > 0 ? 'fade=t=in:st=0:d=1,' : ''}fade=t=out:st=${(!sentence.music ? 10 : sentence.music.time) - 1}:d=1[v${sentenceIndex}]; `
         parameter += `[v${sentenceIndex}]`
       }
 
       // Comando completo
-      const command = `${this.getConfig().FFMPEG_PATH === 'Global' ? '' : this.getConfig().FFMPEG_PATH}ffmpeg -y ${importFiles} ${filters} ${parameter} concat=n=${content.sentences.length}:v=1:a=0,format=yuv420p[v]" -map "[v]" -c:v libx264 -r 60 ${this.getPath()}/content/out_fade.mp4`
+      const command = `${this.getConfig().FFMPEG_PATH === 'Global' ? '' : this.getConfig().FFMPEG_PATH}ffmpeg -y ${importFiles} ${filters} ${parameter} concat=n=${content.sentences.length}:v=1:a=0,format=yuv420p[v]" -map "[v]" -c:v libx264 -r 60 ${this.getPath()}/content/temp/out_fade.mp4`
 
       // Executando o comando
       NodeCmd.get(command, (err, data, stderr) => {
@@ -186,14 +188,14 @@ export default class Music extends Bootstrap {
       for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
         const sentence = content.sentences[sentenceIndex]
         const tempo = (!sentence.music ? 10 : sentence.music.time)
-        importFiles += `-i ${this.getPath()}/content/${sentenceIndex}-sentence.png `
+        importFiles += `-i ${this.getPath()}/content/temp/${sentenceIndex}-sentence.png `
         filters += `[${sentenceIndex > 0 ? 'v' + sentenceIndex : sentenceIndex}][${sentenceIndex + 1}]overlay=y=H-h:enable='between(t,${contTempo},${contTempo + tempo})'[v${sentenceIndex + 1}]${sentenceIndex < content.sentences.length - 1 ? ';' : ''}`
         // Incrementando o contador
         contTempo += tempo
       }
       // Comando completo
       const ffmpeg = this.getConfig().FFMPEG_PATH === 'Global' ? 'ffmpeg' : this.getConfig().FFMPEG_PATH + 'ffmpeg'
-      const command = `${ffmpeg} -y -i ${this.getPath()}/content/out_fade.mp4 ${importFiles} ${filters}" -map "[v${content.sentences.length}]" ${this.getPath()}/content/out_fade_texts.mp4`
+      const command = `${ffmpeg} -y -i ${this.getPath()}/content/temp/out_fade.mp4 ${importFiles} ${filters}" -map "[v${content.sentences.length}]" ${this.getPath()}/content/temp/out_fade_texts.mp4`
 
       // Executar o comando
       NodeCmd.get(command, (err, data, stderr) => {
@@ -215,7 +217,7 @@ export default class Music extends Bootstrap {
     // Se não foi possível sintetizar uma voz então colocamos uma música de fundo
     if (content.sentences[0].music === undefined || content.sentences[0].music == false) {
       return new Promise((resolve, reject) => {
-        let command = 'ffmpeg -i ./content/out_fade_texts.mp4 -i ./content/music.mp3 -c:v libx264 -r 60 -pix_fmt yuv420p -y ./content/out.mp4'
+        let command = 'ffmpeg -i ./content/temp/out_fade_texts.mp4 -i ./content/temp/music.mp3 -c:v libx264 -r 60 -pix_fmt yuv420p -y ./content/upload.mp4'
         NodeCmd.get(command, (err, data, stderr) => {
           if (!err) {
             this.showLog('O áudio foi renderizado com sucesso')
@@ -229,22 +231,9 @@ export default class Music extends Bootstrap {
     } else {
       // Essa função é responsável por colocar cada áudio que foi sintetizado no tempo de cada imagem
       return new Promise((resolve, reject) => {
-        // Variável responsável por armazenar os itens que serão importados para a renderização
-        let importFiles = ''
-        // Variável responsável por armazenar os efeitos de zoom de cada item
-        let filters = '-filter_complex "'
-        // Parâmetro para fazer o efeito funcionar
-        let parameter = ''
-        for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
-          const sentence = content.sentences[sentenceIndex]
-          const tempo = (!sentence.music ? 10 : sentence.music.time)
-          importFiles += `-i ${this.getPath()}/content/${sentenceIndex}-audio.wav `
-          filters += `[${sentenceIndex + 1}:a]atrim=end=${tempo},asetpts=PTS-STARTPTS[a${sentenceIndex + 1}];`
-          parameter += `[a${sentenceIndex + 1}]`
-        }
         // Comando completo
         const ffmpeg = this.getConfig().FFMPEG_PATH === 'Global' ? 'ffmpeg' : this.getConfig().FFMPEG_PATH + 'ffmpeg'
-        const command = `${ffmpeg} -y -i ${this.getPath()}/content/out_fade_texts.mp4 ${importFiles} ${filters}" ${parameter} concat=n=${content.sentences.length}:v=0:a=1[a]" -map 0:v -map "[a]" -codec:v copy -codec:a libmp3lame -shortest ${this.getPath()}/content/out_audio.mp4`
+        const command = `${ffmpeg} -y -i "${this.getPath()}/content/temp/out_fade_texts.mp4"  -i "${this.getPath()}/content/temp/out_audio_final.mp3" -shortest "${this.getPath()}/content/upload.mp4"`
 
         console.log(command)
 
@@ -259,5 +248,27 @@ export default class Music extends Bootstrap {
         })
       })
     }
+  }
+
+  async playVideo(){
+    this.showLog(`[video-robot] resultado final do vídeo`)
+    // Essa função é responsável por colocar cada áudio que foi sintetizado no tempo de cada imagem
+    return new Promise((resolve, reject) => {
+      // Comando completo
+      const ffplay= this.getConfig().FFMPEG_PATH === 'Global' ? 'ffplay' : this.getConfig().FFMPEG_PATH + 'ffplay'
+      const command = `${ffplay} "${this.getPath()}/content/upload.mp4"`
+
+      //console.log(command)
+
+      NodeCmd.get(command, (err, data, stderr) => {
+        if (!err) {
+          this.showLog('O programa foi finalizado com sucesso')
+          resolve()
+        } else {
+          this.showLog('error', err)
+          reject()
+        }
+      })
+    })
   }
 }

@@ -116,3 +116,4 @@ content/*.mov
 content/*.mp4
 content/*.mp3
 content/*.wav
+content/temp/*.*
